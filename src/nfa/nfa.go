@@ -21,7 +21,7 @@ class NFA:
         print(self.start_state)
         print(self.transition_functions)
 */
-package NfaToDfa
+package nfa
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ type Nfa struct {
 	NumAcceptingStates  int
 	AcceptingStates     []int
 	StartState          int
-	TransitionFunctions []int
+	TransitionFunctions []TransitionFunction
 }
 
 func (nfa Nfa) initStates() {
@@ -75,7 +75,7 @@ func (nfa Nfa) print() {
           self.transition_functions.append(transition_function)
 */
 
-func (nfa Nfa) constructNfaFromFile(nfaTxt []string) {
+func (nfa Nfa) constructNfaFromFile(nfaTxt []string, transitionFunction TransitionFunction) {
 	nfa.NumStates, _ = strconv.Atoi(nfaTxt[0])
 
 	nfa.initStates()
@@ -95,16 +95,10 @@ func (nfa Nfa) constructNfaFromFile(nfaTxt []string) {
 	for line := 4; line < len(nfaTxt); line++ {
 		transitionFuncLine := strings.Split(nfaTxt[line], " ")
 
-		// Тут int/string/int кладется в один список
-		//startingState, _ := strconv.Atoi(transitionFuncLine[0])
-		//transitionSymbol := transitionFuncLine[1]
-		//endingState, _ := strconv.Atoi(transitionFuncLine[2])
+		transitionFunction.StartingState, _ = strconv.Atoi(transitionFuncLine[0])
+		transitionFunction.TransitionSymbol = transitionFuncLine[1]
+		transitionFunction.EndingState, _ = strconv.Atoi(transitionFuncLine[2])
 
-		startingState := transitionFuncLine[0]
-		transitionSymbol := transitionFuncLine[1]
-		endingState := transitionFuncLine[2]
-
-		transitionFunction := [...]string{startingState, transitionSymbol, endingState}
 		nfa.TransitionFunctions = append(nfa.TransitionFunctions, transitionFunction)
 	}
 }
