@@ -5,3 +5,8 @@ type TransitionFunction struct {
 	TransitionSymbol string
 	EndingState      int
 }
+
+type TransitionKey struct {
+	StartingState    []int
+	TransitionSymbol string
+}
