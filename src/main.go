@@ -1,10 +1,10 @@
 package main
 
 import (
+	dfaSrc "./dfa"
 	nfaSrc "./nfa"
 	transitionFunctionSrc "./transitionFunction"
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 )
@@ -35,5 +35,8 @@ func main() {
 	transitionFunction := transitionFunctionSrc.TransitionFunction{}
 	nfa.ConstructNfaFromFile(lines, transitionFunction)
 
-	fmt.Print(nfa)
+	dfa := dfaSrc.Dfa{}
+	dfa.ConvertFromNfa(nfa)
+
+	//fmt.Print(nfa)
 }
