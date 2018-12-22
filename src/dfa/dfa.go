@@ -48,7 +48,6 @@ type Destinations struct {
 //	return false
 //}
 
-
 func isElementInArray(element int, array []int) bool {
 	for _, value := range array {
 		if value == element {
@@ -68,7 +67,6 @@ func getKey(transition map[*transitionFunction.TransitionKey][]int, transitionKe
 	}
 	return false, nil
 }
-
 
 func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 	dfa.Symbols = nfa.Symbols
@@ -101,70 +99,71 @@ func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 					dfaTransition[&dfaTransitionKey] = nfaTransition[key]
 
 					if _, ok := nfaTransition[nfaTransitionKey]; ok {
-					dfaTransitionKey := transitionFunction.TransitionKey{StartingState: dfaState, TransitionSymbol: strconv.Itoa(int(symbol))}
-					dfaTransition[&dfaTransitionKey] = nfaTransition[&nfaTransitionKey]
+						dfaTransitionKey := transitionFunction.TransitionKey{StartingState: dfaState, TransitionSymbol: strconv.Itoa(int(symbol))}
+						dfaTransition[&dfaTransitionKey] = nfaTransition[&nfaTransitionKey]
 
-					if !dfa.isExistState(nfaTransition[&nfaTransitionKey]) {
-						pState := new([]int)
-						*pState = nfaTransition[&nfaTransitionKey]
-						dfa.States = append(dfa.States, pState)
+						if !dfa.isExistState(nfaTransition[&nfaTransitionKey]) {
+							pState := new([]int)
+							*pState = nfaTransition[&nfaTransitionKey]
+							dfa.States = append(dfa.States, pState)
+						}
 					}
+					//			} else {
+					//				var destinations Destinations
+					//				var finalDestination []int
+					//
+					//				start := new([]int)
+					//				*start = []int{0} // {1}
+					//				destinations.Ways = append(destinations.Ways, start)
+					//
+					//				for _, nfaState := range *dfaState {
+					//					nfaTransitionKey = transitionFunction.TransitionKey{StartingState: []int{nfaState}, TransitionSymbol: strconv.Itoa(int(symbol))}
+					//					if _, ok := nfaTransition[&nfaTransitionKey]; ok {
+					//						if destinations.isExistWay(nfaTransition[&nfaTransitionKey]); !ok {
+					//							pNfaTransition := new([]int)
+					//							*pNfaTransition = nfaTransition[&nfaTransitionKey]
+					//							destinations.Ways = append(destinations.Ways, pNfaTransition)
+					//						}
+					//					}
+					//				}
+					//				if len(destinations.Ways) == 0 {
+					//					finalDestination = append(finalDestination, -1)
+					//				} else {
+					//					for _, ways := range destinations.Ways {
+					//						for _, value := range *ways {
+					//							if !isElementInArray(value, finalDestination) {
+					//								finalDestination = append(finalDestination, value)
+					//							}
+					//						}
+					//					}
+					//				}
+					//				dfaTransition[&dfaTransitionKey] = finalDestination
+					//
+					//				if !dfa.isExistState(finalDestination) {
+					//					dfa.States = append(dfa.States, &finalDestination)
+					//				}
+					//			}
+					//		}
+					//	}
 				}
-				//			} else {
-				//				var destinations Destinations
-				//				var finalDestination []int
-				//
-				//				start := new([]int)
-				//				*start = []int{0} // {1}
-				//				destinations.Ways = append(destinations.Ways, start)
-				//
-				//				for _, nfaState := range *dfaState {
-				//					nfaTransitionKey = transitionFunction.TransitionKey{StartingState: []int{nfaState}, TransitionSymbol: strconv.Itoa(int(symbol))}
-				//					if _, ok := nfaTransition[&nfaTransitionKey]; ok {
-				//						if destinations.isExistWay(nfaTransition[&nfaTransitionKey]); !ok {
-				//							pNfaTransition := new([]int)
-				//							*pNfaTransition = nfaTransition[&nfaTransitionKey]
-				//							destinations.Ways = append(destinations.Ways, pNfaTransition)
-				//						}
-				//					}
-				//				}
-				//				if len(destinations.Ways) == 0 {
-				//					finalDestination = append(finalDestination, -1)
-				//				} else {
-				//					for _, ways := range destinations.Ways {
-				//						for _, value := range *ways {
-				//							if !isElementInArray(value, finalDestination) {
-				//								finalDestination = append(finalDestination, value)
-				//							}
-				//						}
-				//					}
-				//				}
-				//				dfaTransition[&dfaTransitionKey] = finalDestination
-				//
-				//				if !dfa.isExistState(finalDestination) {
-				//					dfa.States = append(dfa.States, &finalDestination)
-				//				}
-				//			}
-				//		}
-				//	}
-			}
-			/**
-		# Convert NFA states to DFA states
-	        for key in dfa_transition_dict:
-	            self.transition_functions.append(
-	                (self.q.index(tuple(key[0])), key[1], self.q.index(tuple(dfa_transition_dict[key]))))
+				/**
+					# Convert NFA states to DFA states
+				        for key in dfa_transition_dict:
+				            self.transition_functions.append(
+				                (self.q.index(tuple(key[0])), key[1], self.q.index(tuple(dfa_transition_dict[key]))))
 
-	        for q_state in self.q:
-	            for nfa_accepting_state in nfa.accepting_states:
-	                if nfa_accepting_state in q_state:
-	                    self.accepting_states.append(self.q.index(q_state))
-	                    self.num_accepting_states += 1
-	*/
-			// Convert NFA states to DFA states
-			//for key, value := range dfaTransition {
-			//	transitionFunction := transitionFunction.TransitionFunction{key.StartingState[0], key.TransitionSymbol, value.StartingState[0]}
-			//	dfa.TransitionFunctions = append(dfa.TransitionFunctions, )
-			//}
+				        for q_state in self.q:
+				            for nfa_accepting_state in nfa.accepting_states:
+				                if nfa_accepting_state in q_state:
+				                    self.accepting_states.append(self.q.index(q_state))
+				                    self.num_accepting_states += 1
+				*/
+				// Convert NFA states to DFA states
+				//for key, value := range dfaTransition {
+				//	transitionFunction := transitionFunction.TransitionFunction{key.StartingState[0], key.TransitionSymbol, value.StartingState[0]}
+				//	dfa.TransitionFunctions = append(dfa.TransitionFunctions, )
+				//}
+			}
 		}
 	}
 }
