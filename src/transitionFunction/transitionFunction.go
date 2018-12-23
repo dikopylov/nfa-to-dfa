@@ -22,14 +22,3 @@ func IntArrayEquals(arrayOne []int, arrayTwo []int) bool {
 	}
 	return true
 }
-
-func KeysIsExist(transition map[*TransitionKey][]int, key TransitionKey) bool {
-	for index := range transition {
-		if index.TransitionSymbol == key.TransitionSymbol {
-			if IntArrayEquals(key.StartingState, index.StartingState) {
-				return true
-			}
-		}
-	}
-	return false
-}

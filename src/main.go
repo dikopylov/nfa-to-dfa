@@ -26,7 +26,7 @@ func readLines(path string) ([]string, error) {
 
 func main() {
 
-	lines, err := readLines("H:/Documents/GoLandProjects/NfaToDfa/src/test.txt")
+	lines, err := readLines("H:/Documents/GoLandProjects/NfaToDfa/src/test3.txt")
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
 	}
@@ -38,5 +38,5 @@ func main() {
 	dfa := dfaSrc.Dfa{}
 	dfa.ConvertFromNfa(nfa)
 
-	//fmt.Print(nfa)
+	dfa.Print()
 }
