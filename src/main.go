@@ -26,7 +26,7 @@ func readLines(path string) ([]string, error) {
 
 func main() {
 
-	lines, err := readLines("H:/Documents/GoLandProjects/NfaToDfa/src/test2.txt")
+	lines, err := readLines("H:/Documents/GoLandProjects/NfaToDfa/src/test3.txt")
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
 	}

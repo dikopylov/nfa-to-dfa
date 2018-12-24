@@ -67,6 +67,17 @@ func getKey(transition map[*transitionFunction.TransitionKey][]int, transitionKe
 	return false, nil
 }
 
+func initCondition(dfaStates []int, nfaTransition map[*transitionFunction.TransitionKey][]int, transitionSymbol string) (bool, *transitionFunction.TransitionKey) {
+	if len(dfaStates) == 1 {
+		nfaTransitionKey := transitionFunction.TransitionKey{StartingState: []int{dfaStates[0]}, TransitionSymbol: string(transitionSymbol)}
+		if isExist, key := getKey(nfaTransition, nfaTransitionKey); isExist {
+			return isExist, key
+		}
+	}
+
+	return false, nil
+}
+
 func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 	dfa.Symbols = nfa.Symbols
 	dfa.StartState = nfa.StartState
@@ -91,35 +102,17 @@ func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 
 	for i := 0; i < dfaStatesSize; i++ {
 		for _, symbol := range nfa.Symbols {
-			if len(dfa.States[i]) == 1 {
-				nfaTransitionKey := transitionFunction.TransitionKey{StartingState: []int{dfa.States[i][0]}, TransitionSymbol: string(symbol)}
-				if isExist, key := getKey(nfaTransition, nfaTransitionKey); isExist {
-					dfaTransitionKey := transitionFunction.TransitionKey{StartingState: dfa.States[i], TransitionSymbol: string(symbol)}
-					dfaTransition[&dfaTransitionKey] = nfaTransition[key]
+			if ok, key := initCondition(dfa.States[i], nfaTransition, string(symbol)); ok {
+				dfaTransitionKey := transitionFunction.TransitionKey{StartingState: dfa.States[i], TransitionSymbol: string(symbol)}
+				dfaTransition[&dfaTransitionKey] = nfaTransition[key]
 
-					if !dfa.isExistState(nfaTransition[key]) {
-						dfa.States = append(dfa.States, nfaTransition[key])
-					}
+				if !dfa.isExistState(nfaTransition[key]) {
+					dfa.States = append(dfa.States, nfaTransition[key])
 				}
 			} else {
 				var destinations Destinations
 				var finalDestination []int
 
-				//start := []int{0}
-				//destinations.Ways = append(destinations.Ways, start)
-				/**
-								else:
-				destinations = []
-				final_destination = []
-
-				for nfa_state in dfa_state:
-					if (nfa_state, symbol) in nfa_transition_dict and \
-									nfa_transition_dict[(nfa_state, symbol)] not in destinations:
-						destinations.append(nfa_transition_dict[(nfa_state, symbol)])
-				*/
-				//if dfa.States[i] == nil {
-				//	fmt.Println(1)
-				//}
 				for _, nfaState := range dfa.States[i] {
 					nfaTransitionKey := transitionFunction.TransitionKey{StartingState: []int{nfaState}, TransitionSymbol: string(symbol)}
 
@@ -128,29 +121,29 @@ func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 							destinations.Ways = append(destinations.Ways, nfaTransition[key])
 						}
 					}
-					if len(destinations.Ways) == 0 {
-						finalDestination = append(finalDestination, -1)
-					} else {
-						for _, ways := range destinations.Ways {
-							for _, value := range ways {
-								if !isElementInArray(value, finalDestination) {
-									finalDestination = append(finalDestination, value)
-								}
+				}
+				if len(destinations.Ways) == 0 {
+					finalDestination = nil
+				} else {
+					for _, ways := range destinations.Ways {
+						for _, value := range ways {
+							if !isElementInArray(value, finalDestination) {
+								finalDestination = append(finalDestination, value)
 							}
 						}
 					}
+				}
 
-					dfaTransitionKey := transitionFunction.TransitionKey{StartingState: dfa.States[i], TransitionSymbol: string(symbol)}
+				dfaTransitionKey := transitionFunction.TransitionKey{StartingState: dfa.States[i], TransitionSymbol: string(symbol)}
 
-					if isExist, key := getKey(dfaTransition, dfaTransitionKey); isExist {
-						dfaTransition[key] = finalDestination
-					} else {
-						dfaTransition[&dfaTransitionKey] = finalDestination
-					}
+				if isExist, key := getKey(dfaTransition, dfaTransitionKey); isExist {
+					dfaTransition[key] = finalDestination
+				} else {
+					dfaTransition[&dfaTransitionKey] = finalDestination
+				}
 
-					if !dfa.isExistState(finalDestination) {
-						dfa.States = append(dfa.States, finalDestination)
-					}
+				if !dfa.isExistState(finalDestination) {
+					dfa.States = append(dfa.States, finalDestination)
 				}
 			}
 		}
@@ -185,6 +178,7 @@ func (dfa Dfa) Print() {
 	}
 	fmt.Println()
 
+	fmt.Printf("%d ", dfa.NumAcceptingStates)
 	for _, symbol := range dfa.AcceptingStates {
 		fmt.Printf("%d ", symbol)
 	}
