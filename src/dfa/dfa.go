@@ -163,8 +163,10 @@ func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 		for _, nfaAcceptingState := range nfa.AcceptingStates {
 			if isElementInArray(nfaAcceptingState, qState) {
 				index, _ := indexOf(qState, dfa.States)
-				dfa.AcceptingStates = append(dfa.AcceptingStates, index)
-				dfa.NumAcceptingStates += 1
+				if !isElementInArray(index, dfa.AcceptingStates) {
+					dfa.AcceptingStates = append(dfa.AcceptingStates, index)
+					dfa.NumAcceptingStates += 1
+				}
 			}
 		}
 	}
