@@ -4,6 +4,7 @@ import (
 	"../nfa"
 	"../transitionFunction"
 	"fmt"
+	"sort"
 )
 
 type Dfa struct {
@@ -27,6 +28,21 @@ func (destination *Destinations) isExistWay(way []int) bool {
 
 type Destinations struct {
 	Ways [][]int
+}
+
+func (dfa *Dfa) sortTransitionFunctions() {
+	sort.SliceStable(dfa.TransitionFunctions,
+		func(i, j int) bool {
+			current := dfa.TransitionFunctions[j]
+			following := dfa.TransitionFunctions[i]
+
+			result := following.StartingState < current.StartingState
+			if following.StartingState == current.StartingState {
+				result = following.TransitionSymbol < current.TransitionSymbol
+			}
+
+			return result
+		})
 }
 
 func (dfa *Dfa) isExistState(state []int) bool {
@@ -159,6 +175,9 @@ func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 			}
 		}
 	}
+
+	dfa.sortTransitionFunctions()
+
 	for _, qState := range dfa.States {
 		for _, nfaAcceptingState := range nfa.AcceptingStates {
 			if isElementInArray(nfaAcceptingState, qState) {
