@@ -1,6 +1,7 @@
 package nfa
 
 import (
+	enums "../enums"
 	"../transitionFunction"
 	"fmt"
 	"strconv"
@@ -28,12 +29,12 @@ func (nfa *Nfa) Print() {
 }
 
 func (nfa *Nfa) ConstructNfaFromFile(nfaTxt []string, transitionFunction transitionFunction.TransitionFunction) {
-	nfa.NumStates, _ = strconv.Atoi(nfaTxt[0])
+	nfa.NumStates, _ = strconv.Atoi(nfaTxt[enums.NumStatesLine])
 
 	nfa.InitStates()
-	nfa.Symbols = strings.TrimSpace(nfaTxt[1])
+	nfa.Symbols = strings.TrimSpace(nfaTxt[enums.ValidCharactersLine])
 
-	acceptingStatesLine := strings.Split(nfaTxt[2], " ")
+	acceptingStatesLine := strings.Split(nfaTxt[enums.AcceptingStatesLine], " ")
 
 	nfa.NumAcceptingStates = len(acceptingStatesLine)
 	for _, value := range acceptingStatesLine {
@@ -42,9 +43,9 @@ func (nfa *Nfa) ConstructNfaFromFile(nfaTxt []string, transitionFunction transit
 		nfa.AcceptingStates = append(nfa.AcceptingStates, state)
 	}
 
-	nfa.StartState, _ = strconv.Atoi(nfaTxt[3])
+	nfa.StartState, _ = strconv.Atoi(nfaTxt[enums.StartStateLine])
 
-	for line := 4; line < len(nfaTxt); line++ {
+	for line := enums.FunctionsStartLine; line < len(nfaTxt); line++ {
 		transitionFuncLine := strings.Split(nfaTxt[line], " ")
 
 		transitionFunction.StartingState, _ = strconv.Atoi(transitionFuncLine[0])
