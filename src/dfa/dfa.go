@@ -94,14 +94,15 @@ func initCondition(dfaStates []int, nfaTransition map[*transitionFunction.Transi
 	return false, nil
 }
 
-func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
-	dfa.Symbols = nfa.Symbols
-	dfa.StartState = nfa.StartState
-
+/**
+Преобразуем исходные функции перехода НКА в карту nfaTransition,
+где ключ - Структура TransitionKey, а значение - срез состояний,
+в которые осуществляется переход из StartingState по символу TransitionSymbol
+*/
+func makeNFATransitionMap(transitionFunctions []transitionFunction.TransitionFunction) map[*transitionFunction.TransitionKey][]int {
 	nfaTransition := make(map[*transitionFunction.TransitionKey][]int)
-	dfaTransition := make(map[*transitionFunction.TransitionKey][]int)
 
-	for _, transition := range nfa.TransitionFunctions {
+	for _, transition := range transitionFunctions {
 
 		nfaTransitionKey := transitionFunction.TransitionKey{[]int{transition.StartingState}, transition.TransitionSymbol}
 
@@ -112,12 +113,18 @@ func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 		}
 	}
 
+	return nfaTransition
+}
+
+func makeDFATransitionMap(dfa *Dfa, nfaTransition map[*transitionFunction.TransitionKey][]int) map[*transitionFunction.TransitionKey][]int {
+	dfaTransition := make(map[*transitionFunction.TransitionKey][]int)
+
 	dfa.States = append(dfa.States, []int{0})
 
 	dfaStatesSize := len(dfa.States)
 
 	for i := 0; i < dfaStatesSize; i++ {
-		for _, symbol := range nfa.Symbols {
+		for _, symbol := range dfa.Symbols {
 			if ok, key := initCondition(dfa.States[i], nfaTransition, string(symbol)); ok {
 				dfaTransitionKey := transitionFunction.TransitionKey{StartingState: dfa.States[i], TransitionSymbol: string(symbol)}
 				dfaTransition[&dfaTransitionKey] = nfaTransition[key]
@@ -166,7 +173,17 @@ func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
 		dfaStatesSize = len(dfa.States)
 	}
 
-	// Convert NFA states to DFA states
+	return dfaTransition
+}
+
+func (dfa *Dfa) ConvertFromNfa(nfa nfa.Nfa) {
+	dfa.Symbols = nfa.Symbols
+	dfa.StartState = nfa.StartState
+
+	nfaTransition := makeNFATransitionMap(nfa.TransitionFunctions)
+	dfaTransition := makeDFATransitionMap(dfa, nfaTransition)
+
+	// Формируем функции перехода для ДКА
 	for key, value := range dfaTransition {
 		if startingStateIndex, ok := indexOf(key.StartingState, dfa.States); ok {
 			if valueOfIndex, isTrue := indexOf(value, dfa.States); isTrue {
@@ -199,7 +216,6 @@ func (dfa Dfa) Print() {
 	}
 	fmt.Println()
 
-	fmt.Printf("%d ", dfa.NumAcceptingStates)
 	for _, symbol := range dfa.AcceptingStates {
 		fmt.Printf("%d ", symbol)
 	}
