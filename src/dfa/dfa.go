@@ -83,7 +83,7 @@ func getKey(transition map[*transitionFunction.TransitionKey][]int, transitionKe
 	return false, nil
 }
 
-func initCondition(dfaStates []int, nfaTransition map[*transitionFunction.TransitionKey][]int, transitionSymbol string) (bool, *transitionFunction.TransitionKey) {
+func isStartState(dfaStates []int, nfaTransition map[*transitionFunction.TransitionKey][]int, transitionSymbol string) (bool, *transitionFunction.TransitionKey) {
 	if len(dfaStates) == 1 {
 		nfaTransitionKey := transitionFunction.TransitionKey{StartingState: []int{dfaStates[0]}, TransitionSymbol: string(transitionSymbol)}
 		if isExist, key := getKey(nfaTransition, nfaTransitionKey); isExist {
@@ -125,7 +125,7 @@ func makeDFATransitionMap(dfa *Dfa, nfaTransition map[*transitionFunction.Transi
 
 	for i := 0; i < dfaStatesSize; i++ {
 		for _, symbol := range dfa.Symbols {
-			if ok, key := initCondition(dfa.States[i], nfaTransition, string(symbol)); ok {
+			if ok, key := isStartState(dfa.States[i], nfaTransition, string(symbol)); ok {
 				dfaTransitionKey := transitionFunction.TransitionKey{StartingState: dfa.States[i], TransitionSymbol: string(symbol)}
 				dfaTransition[&dfaTransitionKey] = nfaTransition[key]
 
