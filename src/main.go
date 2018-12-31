@@ -3,7 +3,6 @@ package main
 import (
 	dfaSrc "./dfa"
 	nfaSrc "./nfa"
-	transitionFunctionSrc "./transitionFunction"
 	"bufio"
 	"log"
 	"os"
@@ -25,16 +24,13 @@ func readLines(path string) ([]string, error) {
 }
 
 func main() {
-	//C:/Users/arman/Desktop/Portfolio/nfa-to-dfa/src/test3.txt
-	//H:/Documents/GoLandProjects/NfaToDfa/src/test3.txt
-	lines, err := readLines("H:/Documents/GoLandProjects/NfaToDfa/src/test3.txt")
+	lines, err := readLines("C:/Users/arman/Desktop/Portfolio/nfa-to-dfa/src/test4.txt")
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
 	}
 
 	nfa := nfaSrc.Nfa{}
-	transitionFunction := transitionFunctionSrc.TransitionFunction{}
-	nfa.ConstructNfaFromFile(lines, transitionFunction)
+	nfa.ConstructNfaFromFile(lines)
 
 	dfa := dfaSrc.Dfa{}
 	dfa.ConvertFromNfa(nfa)

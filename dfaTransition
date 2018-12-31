@@ -1,8 +1,0 @@
-((0,), 'a') (2875950639560) = {list} <class 'list'>: [1, 2]
-((0,), 'b') (2876001386312) = {list} <class 'list'>: [None]
-((1, 2), 'a') (2876003530568) = {list} <class 'list'>: [1, 2]
-((1, 2), 'b') (2876003530632) = {list} <class 'list'>: [1, 3]
-((None,), 'a') (2876003530824) = {list} <class 'list'>: [None]
-((None,), 'b') (2876003530888) = {list} <class 'list'>: [None]
-((1, 3), 'a') (2876003530952) = {list} <class 'list'>: [1, 2]
-((1, 3), 'b') (2876003531016) = {list} <class 'list'>: [None]

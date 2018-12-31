@@ -28,10 +28,19 @@ func (nfa *Nfa) Print() {
 	fmt.Println(nfa.NumStates)
 }
 
-func (nfa *Nfa) ConstructNfaFromFile(nfaTxt []string, transitionFunction transitionFunction.TransitionFunction) {
+func (nfa *Nfa) AddTransitionFunction(startState int, endState int, transitionSymbol string) {
+	transitionFunc := transitionFunction.TransitionFunction{}
+
+	transitionFunc.StartingState = startState
+	transitionFunc.TransitionSymbol = transitionSymbol
+	transitionFunc.EndingState = endState
+
+	nfa.TransitionFunctions = append(nfa.TransitionFunctions, transitionFunc)
+}
+
+func (nfa *Nfa) ConstructNfaFromFile(nfaTxt []string) {
 	nfa.NumStates, _ = strconv.Atoi(nfaTxt[enums.NumStatesLine])
 
-	nfa.InitStates()
 	nfa.Symbols = strings.TrimSpace(nfaTxt[enums.ValidCharactersLine])
 
 	acceptingStatesLine := strings.Split(nfaTxt[enums.AcceptingStatesLine], " ")
@@ -47,11 +56,28 @@ func (nfa *Nfa) ConstructNfaFromFile(nfaTxt []string, transitionFunction transit
 
 	for line := enums.FunctionsStartLine; line < len(nfaTxt); line++ {
 		transitionFuncLine := strings.Split(nfaTxt[line], " ")
+		startState, _ := strconv.Atoi(transitionFuncLine[0])
+		transitionSymbol := transitionFuncLine[1]
+		endState, _ := strconv.Atoi(transitionFuncLine[2])
 
-		transitionFunction.StartingState, _ = strconv.Atoi(transitionFuncLine[0])
-		transitionFunction.TransitionSymbol = transitionFuncLine[1]
-		transitionFunction.EndingState, _ = strconv.Atoi(transitionFuncLine[2])
+		if len(transitionSymbol) > 1 {
+			transitionSymbols := strings.Split(transitionSymbol, "")
+			nfa.AddTransitionFunction(startState, nfa.NumStates, transitionSymbols[0])
+			nfa.NumStates++
 
-		nfa.TransitionFunctions = append(nfa.TransitionFunctions, transitionFunction)
+			lastIndex := len(transitionSymbols) - 1
+			for _, symbol := range transitionSymbols[1:lastIndex] {
+				nfa.AddTransitionFunction(nfa.NumStates-1, nfa.NumStates, symbol)
+				nfa.NumStates++
+			}
+
+			nfa.AddTransitionFunction(nfa.NumStates-1, endState, transitionSymbols[lastIndex])
+		} else if transitionFuncLine[1] == "E" {
+
+		} else {
+			nfa.AddTransitionFunction(startState, endState, transitionSymbol)
+		}
 	}
+
+	nfa.InitStates()
 }
