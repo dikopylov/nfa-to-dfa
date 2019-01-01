@@ -1,7 +1,7 @@
 package nfa
 
 import (
-	enums "../enums"
+	"../enums"
 	"../transitionFunction"
 	"fmt"
 	"strconv"
@@ -18,6 +18,34 @@ type Nfa struct {
 	TransitionFunctions []transitionFunction.TransitionFunction
 }
 
+func (nfa *Nfa) isLastAcceptingState(state int) bool {
+	result := false
+	for _, acceptingState := range nfa.AcceptingStates {
+		if acceptingState == state {
+			result = true
+		}
+	}
+
+	if result {
+		for _, transitionFunc := range nfa.TransitionFunctions {
+			if transitionFunc.StartingState == state {
+				result = false
+			}
+		}
+	}
+	return result
+}
+
+func getKey(haystack []int, value int) int {
+	for key, val := range haystack {
+		if val == value {
+			return key
+		}
+	}
+
+	return -1
+}
+
 func (nfa *Nfa) InitStates() {
 	for i := 0; i < nfa.NumStates; i++ {
 		nfa.States = append(nfa.States, i)
@@ -28,7 +56,7 @@ func (nfa *Nfa) Print() {
 	fmt.Println(nfa.NumStates)
 }
 
-func (nfa *Nfa) AddTransitionFunction(startState int, endState int, transitionSymbol string) {
+func (nfa *Nfa) addTransitionFunction(startState int, endState int, transitionSymbol string) {
 	transitionFunc := transitionFunction.TransitionFunction{}
 
 	transitionFunc.StartingState = startState
@@ -40,7 +68,8 @@ func (nfa *Nfa) AddTransitionFunction(startState int, endState int, transitionSy
 
 func (nfa *Nfa) ConstructNfaFromFile(nfaTxt []string) {
 	nfa.NumStates, _ = strconv.Atoi(nfaTxt[enums.NumStatesLine])
-
+	epsTransitKey := 0
+	epsTransitions := make(map[int]transitionFunction.TransitionFunction)
 	nfa.Symbols = strings.TrimSpace(nfaTxt[enums.ValidCharactersLine])
 
 	acceptingStatesLine := strings.Split(nfaTxt[enums.AcceptingStatesLine], " ")
@@ -62,20 +91,50 @@ func (nfa *Nfa) ConstructNfaFromFile(nfaTxt []string) {
 
 		if len(transitionSymbol) > 1 {
 			transitionSymbols := strings.Split(transitionSymbol, "")
-			nfa.AddTransitionFunction(startState, nfa.NumStates, transitionSymbols[0])
+			nfa.addTransitionFunction(startState, nfa.NumStates, transitionSymbols[0])
 			nfa.NumStates++
 
 			lastIndex := len(transitionSymbols) - 1
 			for _, symbol := range transitionSymbols[1:lastIndex] {
-				nfa.AddTransitionFunction(nfa.NumStates-1, nfa.NumStates, symbol)
+				nfa.addTransitionFunction(nfa.NumStates-1, nfa.NumStates, symbol)
 				nfa.NumStates++
 			}
 
-			nfa.AddTransitionFunction(nfa.NumStates-1, endState, transitionSymbols[lastIndex])
-		} else if transitionFuncLine[1] == "E" {
+			nfa.addTransitionFunction(nfa.NumStates-1, endState, transitionSymbols[lastIndex])
 
+		} else if transitionSymbol == enums.EpsSymbol && startState != endState {
+			epsTransitions[epsTransitKey] = transitionFunction.TransitionFunction{
+				StartingState:    startState,
+				TransitionSymbol: enums.EpsSymbol,
+				EndingState:      endState,
+			}
+			epsTransitKey++
 		} else {
-			nfa.AddTransitionFunction(startState, endState, transitionSymbol)
+
+			nfa.addTransitionFunction(startState, endState, transitionSymbol)
+		}
+	}
+
+	if len(epsTransitions) > 0 {
+		nfaTransitions := nfa.TransitionFunctions
+
+		for len(epsTransitions) > 0 {
+			for key, epsTransition := range epsTransitions {
+				for _, nfaTransition := range nfaTransitions {
+					if nfaTransition.EndingState == epsTransition.StartingState {
+						nfa.addTransitionFunction(nfaTransition.StartingState, epsTransition.EndingState, nfaTransition.TransitionSymbol)
+						delete(epsTransitions, key)
+					} else if nfaTransition.StartingState == nfa.StartState &&
+						epsTransition.StartingState == nfaTransition.StartingState &&
+						nfa.isLastAcceptingState(epsTransition.EndingState) {
+						acceptingStateKey := getKey(nfa.AcceptingStates, epsTransition.EndingState)
+						nfa.AcceptingStates = append(nfa.AcceptingStates[:acceptingStateKey], nfa.AcceptingStates[acceptingStateKey+1:]...)
+						nfa.NumStates--
+						nfa.AcceptingStates = append(nfa.AcceptingStates, nfaTransition.StartingState)
+						delete(epsTransitions, key)
+					}
+				}
+			}
 		}
 	}
 
